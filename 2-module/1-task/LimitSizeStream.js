@@ -3,11 +3,21 @@ const LimitExceededError = require('./LimitExceededError');
 
 class LimitSizeStream extends stream.Transform {
   constructor(options) {
-    super(options);
+      super(options);
+      this.#limit = options.limit;
   }
 
-  _transform(chunk, encoding, callback) {
+  #limit = 0;
+  #size = 0;
 
+  _transform(chunk, encoding, callback) {
+    this.#size += chunk.length;
+    if (this.#limit && this.#size > this.#limit) {
+      callback(new LimitExceededError());
+    } else {
+      this.push(chunk.toString());
+      callback(null);
+    }
   }
 }
 
