@@ -12,14 +12,12 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'GET':
-      console.log(filepath);
       if (!pathname || pathname.indexOf('/') !== -1) {
         res.statusCode = 400;
         res.end('Bad request');
       }
 
       fs.exists(filepath, function (exists) {
-	      console.log(exists);
         if (!exists) {
           res.statusCode = 404;
           res.end('File not found');
