@@ -15,23 +15,27 @@ server.on('request', (req, res) => {
       if (!pathname || pathname.indexOf('/') !== -1) {
         res.statusCode = 400;
         res.end('Bad request');
+        return;
       }
 
       fs.exists(filepath, function (exists) {
         if (!exists) {
           res.statusCode = 404;
           res.end('File not found');
+          return;
         }
 
-        fs.readFile(filepath, function (err, info) {
-          if (err) {
-            res.statusCode = 500;
-            res.end('Unknown server error');
-          }
+        const file = new fs.ReadStream(filepath);
+        file.pipe(res);
 
-          res.statusCode = 200;
-          res.end(info);
-        })
+        file.on('error', function (err) {
+          res.statusCode = 500;
+          res.end('Unknown server error');
+        });
+
+        res.on('close', function () {
+          file.destroy();
+        });
       });
       break;
 
