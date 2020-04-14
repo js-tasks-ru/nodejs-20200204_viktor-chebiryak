@@ -56,9 +56,17 @@ server.on('request', (req, res) => {
             });
 
             req.on('end', function () {
-                res.statusCode = 200;
+                res.statusCode = 201;
                 res.end('ok');
-            });          }
+            });
+
+            req.on('aborted', function () {
+              fs.unlink(filepath, () => {
+                res.statusCode = 500;
+                res.end('Internal Server Error');
+              });
+            })
+          }
 
         });
       });
